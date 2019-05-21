@@ -17,6 +17,7 @@ import java.util.Map;
 
 @RestController
 public class ComputeResultController {
+
     @Inject
     private VoteRepo voteRepo;
 
@@ -38,7 +39,7 @@ public class ComputeResultController {
         }
         voteResult.setTotalVotes(totalVotes);
         voteResult.setResults(tempMap.values());
-        return new ResponseEntity<VoteResult>(voteResult, HttpStatus.OK);
+        return new ResponseEntity<>(voteResult, HttpStatus.OK);
     }
 
 }

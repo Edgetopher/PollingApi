@@ -4,6 +4,7 @@ import com.edgetopher.Quick.Poll.application.built.using.Spring.Boot.domain.Doma
 import com.edgetopher.Quick.Poll.application.built.using.Spring.Boot.domain.Exceptions.ResourceNotFoundException;
 import com.edgetopher.Quick.Poll.application.built.using.Spring.Boot.domain.Repo.PollRepo;
 import javassist.NotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +18,10 @@ import java.util.MissingResourceException;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin("*")
 public class PollController {
 
-    @Inject
+    @Autowired
     private PollRepo pollRepo;
 
 
@@ -34,11 +36,9 @@ public class PollController {
             throw new ResourceNotFoundException("Poll with id " + pollId + "not found");
         }
     }
-
     @RequestMapping(value = "/polls",method = RequestMethod.POST)
     public ResponseEntity<?> createPoll(@Valid @RequestBody Poll poll) {
         poll = pollRepo.save(poll);
-
         HttpHeaders responseHeaders = new HttpHeaders();
         URI newPollURI = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -56,12 +56,13 @@ public class PollController {
     }
     @RequestMapping(value = "/polls/{pollId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updatePoll(@RequestBody Poll poll, @PathVariable Long pollId){
-        verifyPoll(pollId);
-//        for (int i = 0; i<pollRepo.count(); i++) {
-//            if(pollRepo.findById(poll.getId()).equals(pollRepo.))
-//        }
-        Poll p = pollRepo.save(poll);
-        return new ResponseEntity<>(HttpStatus.OK);
+//        verifyPoll(pollId);
+        if (pollRepo.existsById(poll.getId())) {
+            Poll p = pollRepo.save(poll);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return createPoll(poll);
+        }
     }
 
     @RequestMapping(value = "/polls/{pollId}", method = RequestMethod.DELETE)
